@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Iframes with Homepage Buttons</title>
+    <style>
+        body {
+            margin: 0;
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .iframe-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .iframe-container.active {
+            border: 2px solid #00f;
+        }
+        iframe {
+            width: 100%;
+            height: 70%;
+            border: none;
+        }
+        .controls {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .controls input {
+            flex: 1;
+            padding: 5px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        .controls button {
+            padding: 5px 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="iframe-container active" id="container1">
+    <div class="controls">
+        <input type="text" id="url1" placeholder="Enter URL">
+        <button onclick="navigate('iframe1', 'url1')">Go</button>
+        <button onclick="goHome('iframe1')">Homepage</button>
+    </div>
+    <iframe src="https://www.google.com/webhp?igu=1" id="iframe1"></iframe>
+</div>
+<div class="iframe-container" id="container2">
+    <div class="controls">
+        <input type="text" id="url2" placeholder="Enter URL">
+        <button onclick="navigate('iframe2', 'url2')">Go</button>
+        <button onclick="goHome('iframe2')">Homepage</button>
+    </div>
+    <iframe src="https://www.google.com/webhp?igu=1" id="iframe2"></iframe>
+</div>
+<div class="iframe-container" id="container3">
+    <div class="controls">
+        <input type="text" id="url3" placeholder="Enter URL">
+        <button onclick="navigate('iframe3', 'url3')">Go</button>
+        <button onclick="goHome('iframe3')">Homepage</button>
+    </div>
+    <iframe src="https://www.google.com/webhp?igu=1" id="iframe3"></iframe>
+</div>
+<div class="iframe-container" id="container4">
+    <div class="controls">
+        <input type="text" id="url4" placeholder="Enter URL">
+        <button onclick="navigate('iframe4', 'url4')">Go</button>
+        <button onclick="goHome('iframe4')">Homepage</button>
+    </div>
+    <iframe src="https://www.google.com/webhp?igu=1" id="iframe4"></iframe>
+</div>
+
+<script>
+    let activeContainerId = 'container1';
+
+    function goHome(iframeId) {
+        const iframe = document.getElementById(iframeId);
+        iframe.src = "https://www.google.com/webhp?igu=1";
+    }
+
+    function navigate(iframeId, inputId) {
+        const url = document.getElementById(inputId).value;
+        if (url) {
+            const iframe = document.getElementById(iframeId);
+            iframe.src = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+        }
+    }
+
+    function setActiveContainer(newActiveId) {
+        document.getElementById(activeContainerId).classList.remove('active');
+        document.getElementById(newActiveId).classList.add('active');
+        activeContainerId = newActiveId;
+    }
+
+    document.addEventListener('keydown', (event) => {
+        const key = event.key.toLowerCase();
+        const ctrl = event.ctrlKey;
+        const order = ['container1', 'container2', 'container3', 'container4'];
+        let currentIndex = order.indexOf(activeContainerId);
+
+        if (ctrl) {
+            if (key === 'h' || event.key === 'ArrowLeft') {
+                currentIndex = (currentIndex - 1 + order.length) % order.length;
+            } else if (key === 'l' || event.key === 'ArrowRight') {
+                currentIndex = (currentIndex + 1) % order.length;
+            } else if (key === 'k' || event.key === 'ArrowUp') {
+                currentIndex = (currentIndex - 2 + order.length) % order.length;
+            } else if (key === 'j' || event.key === 'ArrowDown') {
+                currentIndex = (currentIndex + 2) % order.length;
+            }
+
+            setActiveContainer(order[currentIndex]);
+        }
+    });
+
+    document.querySelectorAll('.iframe-container').forEach(container => {
+        container.addEventListener('click', () => {
+            setActiveContainer(container.id);
+        });
+        container.addEventListener('focusin', () => {
+            setActiveContainer(container.id);
+        });
+    });
+
+    // Add event listener to each iframe to set active container when clicked
+    document.querySelectorAll('iframe').forEach(iframe => {
+        iframe.addEventListener('click', () => {
+            const containerId = iframe.closest('.iframe-container').id;
+            setActiveContainer(containerId);
+        });
+    });
+</script>
+
+</body>
+</html>
